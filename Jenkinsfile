@@ -59,7 +59,7 @@ pipeline {
         stage('Docker cleanup') {
             agent any
             steps {
-                sh "docker rmi $dockerImage.id"
+                sh '''docker rmi \$(docker images -q --filter before=$PROJECT_NAME:$GIT_COMMIT $PROJECT_NAME)'''
             }
         }
     }
