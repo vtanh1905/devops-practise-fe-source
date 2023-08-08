@@ -1,40 +1,23 @@
-# Create image based on the official Node image from dockerhub
-FROM node:lts-buster AS development
-ENV DANGEROUSLY_DISABLE_HOST_CHECK=true
-# Create app directory
-WORKDIR /usr/src/app
+# React Base
+FROM node:18-alpine3.17 as react
 
-# Copy dependency definitions
-COPY package.json /usr/src/app
-COPY package-lock.json /usr/src/app
+WORKDIR /app
 
-# Install dependecies
-#RUN npm set progress=false \
-#    && npm config set depth 0 \
-#    && npm i install
+COPY . .
+
 RUN npm ci
 
-# Get all the code needed to run the app
-COPY . /usr/src/app
+RUN npm run build
 
-# Expose the port the app runs in
-EXPOSE 3000
+# Nginx Base
+FROM nginx:alpine
 
-# Serve the app
-CMD ["npm", "start"]
+COPY --from=react /app/nginx.conf /etc/nginx/conf.d/default.conf
 
-#FROM development as dev-envs
-#ENV DANGEROUSLY_DISABLE_HOST_CHECK=true
-#
-#RUN apt-get update
-#RUN apt-get install -y --no-install-recommends git
-#
-#
-#RUN useradd -s /bin/bash -m vscode
-#RUN groupadd docker
-#RUN usermod -aG docker vscode
-#
-#
-## install Docker tools (cli, buildx, compose)
-#COPY --from=gloursdocker/docker / /
-#CMD [ "npm", "start" ]
+WORKDIR /usr/share/nginx/html
+
+RUN rm -rf ./*
+
+COPY --from=react /app/build .
+
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
