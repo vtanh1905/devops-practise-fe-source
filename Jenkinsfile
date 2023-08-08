@@ -1,7 +1,7 @@
 pipeline {
     environment {
         PROJECT_NAME = "frontend"
-        ECR_URL = "https://533048508039.dkr.ecr.ap-southeast-1.amazonaws.com"
+        ECR_URL = "533048508039.dkr.ecr.ap-southeast-1.amazonaws.com"
         ECR_CREDENTIALS = "ecr:ap-southeast-1:499f3c66-724a-437b-a12a-d5e832de6631"
     } 
     agent none
@@ -36,31 +36,36 @@ pipeline {
         //     }
         // }
 
-        stage('Docker Build') {
+        stage('Docker') {
             agent any
-            steps {
-                script {
-                    dockerImage = docker.build("$PROJECT_NAME:$GIT_COMMIT")
-                }
-            }
-        }
-
-        stage('Docker push') {
-            agent any
-            steps {
-                script {
-                    docker.withRegistry(ECR_URL, ECR_CREDENTIALS) {
-                        dockerImage.push("$GIT_COMMIT")
+            
+            stages {
+                stage('Docker Build') {
+                    agent any
+                    steps {
+                        script {
+                            dockerImage = docker.build("$PROJECT_NAME:$GIT_COMMIT")
+                        }
                     }
                 }
-            }
-        }
 
-        stage('Docker cleanup') {
-            agent any
-            steps {
-                sh "docker rmi $PROJECT_NAME:$GIT_COMMIT"
-                sh "docker rmi $ECR_URL/$PROJECT_NAME:$GIT_COMMIT"
+                stage('Docker Push') {
+                    agent any
+                    steps {
+                        script {
+                            docker.withRegistry("https://$ECR_URL", ECR_CREDENTIALS) {
+                                dockerImage.push("$GIT_COMMIT")
+                            }
+                        }
+                    }
+                }
+
+                stage('Docker Cleanup') {
+                    agent any
+                    steps {
+                        sh "docker rmi $dockerImage.id $ECR_URL/$PROJECT_NAME:$GIT_COMMIT"
+                    }
+                }
             }
         }
     }
