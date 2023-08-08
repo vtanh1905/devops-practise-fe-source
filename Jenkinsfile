@@ -56,11 +56,11 @@ pipeline {
             }
         }
 
-        stage('Docker cleanup') {
-            agent any
-            steps {
-                sh '''docker rmi \$(docker images -q --filter before=$PROJECT_NAME:$GIT_COMMIT $PROJECT_NAME)'''
-            }
-        }
+        // stage('Docker cleanup') {
+        //     agent any
+        //     steps {
+        //         sh '''docker rmi \$(docker images -q --filter before=$PROJECT_NAME:$GIT_COMMIT $PROJECT_NAME)'''
+        //     }
+        // }
     }
 }
