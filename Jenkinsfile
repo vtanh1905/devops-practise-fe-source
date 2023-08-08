@@ -59,8 +59,7 @@ pipeline {
         stage('Docker cleanup') {
             agent any
             steps {
-                sh "docker rmi $PROJECT_NAME:$GIT_COMMIT"
-                sh "docker rmi $ECR_URL/$PROJECT_NAME:$GIT_COMMIT"
+                sh "docker rmi $dockerImage.id"
             }
         }
     }
