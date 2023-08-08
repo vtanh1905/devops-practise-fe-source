@@ -18,10 +18,10 @@ pipeline {
             }
         }
 
-        stage('Test') { 
-            steps {
-                sh 'echo Testing Step' 
-            }
-        }
+        // stage('Test') { 
+        //     steps {
+        //         sh 'echo Testing Step' 
+        //     }
+        // }
     }
 }
