@@ -7,19 +7,6 @@ COPY . .
 
 RUN npm ci
 
-RUN npm run build
+CMD npm run start
 
-# Nginx Base
-FROM nginx:alpine
-
-COPY --from=react /app/nginx.conf /etc/nginx/conf.d/default.conf
-
-WORKDIR /usr/share/nginx/html
-
-RUN rm -rf ./*
-
-COPY --from=react /app/build .
-
-ENV REACT_APP_SERVER_URL=http://localhost
-
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+EXPOSE 3000
