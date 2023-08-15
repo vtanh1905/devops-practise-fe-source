@@ -20,4 +20,6 @@ RUN rm -rf ./*
 
 COPY --from=react /app/build .
 
+ENV REACT_APP_SERVER_URL=http://localhost
+
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
